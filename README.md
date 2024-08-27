@@ -17,3 +17,9 @@
 - 1x 4x3 Keypad
 - 1x Breadboard
 - Jumper Wires
+
+**Software Packages:**
+- Arduino IDE - https://www.arduino.cc/en/software/
+- Processing Development Environment - https://processing.org/download
+- RadioHead Library - https://www.airspayce.com/mikem/arduino/RadioHead/
+- AESLib Library - https://github.com/suculent/thinx-aes-lib![unhrdw8iewj7pihur887](https://github.com/user-attachments/assets/6439755a-d496-46b0-92db-726a0e028e22)
