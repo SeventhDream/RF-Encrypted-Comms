@@ -8,24 +8,29 @@
 // Create Amplitude Shift Keying Object
 RH_ASK rf_driver;
 
+
 void setup() {
+
   // put your setup code here, to run once:
   // Initialize ASK Object
   rf_driver.init();
   // Setup Serial Monitor
   Serial.begin(57600);
+  Serial.flush();
+  if (!rf_driver.init()){
+    Serial.println("init failed");
+  } 
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  uint8_t key[17]; // 16 characters + 1 for null character
-  char text[17]; // 16 characters + 1 for null character
 
+void loop() {
+uint8_t key[17]; // 16 characters + 1 for null character
+char text[17]; // 16 characters + 1 for null character
   if (Serial.available() > 0) {
     String msgString = Serial.readString(); // Read data string
     String strkey;
     String message;
-
+    Serial.println(msgString);
     // Split string into two values
     for (int i = 0; i < msgString.length(); i++) {
       if (msgString.substring(i, i + 1) == "|") {
@@ -41,6 +46,8 @@ void loop() {
     // Encrypt message using the key with AES-128 ECB mode
     aes128_enc_single(key, text);
   }
+
+
   // Send output character
   rf_driver.send((uint8_t *)text, strlen(text));
   rf_driver.waitPacketSent();
@@ -48,4 +55,5 @@ void loop() {
   Serial.print("encrypted:");
   Serial.println(text);
   delay(1000);
+
 }

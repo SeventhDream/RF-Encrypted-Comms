@@ -22,30 +22,30 @@ char customKey;
 
 // Constants for row and column sizes
 const byte ROWS = 4;
-const byte COLS = 3;
+const byte COLS = 4;
 
 // Array to represent keys on keypad
 char hexaKeys[ROWS][COLS] = {
-  {'1', '2', '3'},
-  {'4', '5', '6'},
-  {'7', '8', '9'},
-  {'*', '0', '#'}
+  {'1', '2', '3', 'A'},
+  {'4', '5', '6', 'B'},
+  {'7', '8', '9', 'C'},
+  {'*', '0', '#', 'D'}
 };
 
 // Connections to Arduino
 byte rowPins[ROWS] = {9, 8, 7, 6};
-byte colPins[COLS] = {5, 4, 3};
+byte colPins[COLS] = {5, 4, 3, 2};
 
 // Create keypad object
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 
 // Define LCD pinout
-const int  en = 2, rw = 1, rs = 0, d4 = 4, d5 = 5, d6 = 6, d7 = 7, bl = 3;
+const int  en = 16, rw = 2, rs = 0, d4 = 4, d5 = 5, d6 = 6, d7 = 7, bl = 3;
 
 // Define I2C Address - change if reqiuired
-const int i2c_addr = 0x3F;
+const int i2c_addr = 0x27;
 
-LiquidCrystal_I2C lcd(i2c_addr, en, rw, rs, d4, d5, d6, d7, bl, POSITIVE);
+LiquidCrystal_I2C lcd(i2c_addr, en, rw);
 
 // Create Amplitude Shift Keying Object
 RH_ASK rf_driver;
@@ -54,10 +54,14 @@ void setup() {
   // put your setup code here, to run once:
   // Initialize ASK Object
   rf_driver.init();
+  
   // Set display type as 20 char, 4 rows
-  lcd.begin(20, 4);
+  lcd.begin();
+  lcd.backlight();
   //  Setup Serial Monitor
   Serial.begin(57600);
+  if (!rf_driver.init())
+    Serial.println("init failed");
   // Print on first row
   lcd.setCursor(0, 0);
   lcd.print("Up and Running!");
@@ -101,9 +105,11 @@ void loop() {
 
   // See if we have reached the password length
   if (data_count == Password_Length - 1) {
-    delay(1000);
-    lcd.setCursor(0, 3);
+    lcd.setCursor(0, 0);
+    lcd.clear();
     lcd.print("Processing ...");
+    lcd.setCursor(0, 1);
+    delay(1000);
     // Check if received packet is correct size
     if (rf_driver.recv(buf, &buflen)) {
       uint8_t * key = (uint8_t *)Data;
@@ -130,6 +136,7 @@ void loop() {
     }
   } else if (data_count >= Password_Length) {
     // Clear LCD dispaly, Data if password exceeds 16 characters
+    Serial.println("Password too long!");
     clearData();
   }
 }
